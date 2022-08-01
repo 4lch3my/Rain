@@ -1,40 +1,91 @@
 <!DOCTYPE html>
 <html>
-<head>
-<style>
-body {
-  background-color: #2C2F33;
-}
-</style>
-</head>
-
 <body>
 
-	<br>
-	<br>
-	<br>
+<!-- HTML 'Code' :P -->
+<p>Click the button to get your coordinates.</p>
 
-<font size="16"
-          face="bebas"
-          color="#99aab5">
-		  
-	<center> 
-            Hello &nbsp; World!		
-	</center> 
-	
-	<br>
-			
-	<center> 
-	<img src="./error/icons/sunny_light.png">
-	</center>
-	
-	
-	
-	
-</font>
+<img id="img" src="./assets/weather.png" style="width: 50px; height: 50px">
 
+<button onclick="getLocation()">Try It</button>
+
+<p id="demo"></p>
+
+<!-- JavaScript Code -->
+<script>
+// Saves the 'p' element with the id 'demo' in the variable 'x' for later use. This isn't required, but it's a good habit!
+var x = document.getElementById("demo");
+
+// There are three functions defined here. 'getLocation' is the main function. 'showPosition' and 'showError' are functions which get called within the main function.
+
+// Main function which gets called when pressing the button, as stated in the 'onclick="getLocation()"' tag of the button
+function getLocation() {
+  // Returns true if geolocation is supported by the browser. Nothing too important, just copied straight from w3school lol
+  if (navigator.geolocation) {
+    // Method which will get the actual location. From the way I currently see it, the "showPosition" function gets called if the location can be obtained, while the "showError" function gets called if an error occurs.
+    navigator.geolocation.getCurrentPosition(showPosition, showError);
+  } else { 
+    // If the browser does not support Geolocation, display an error message.
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+}
+
+// If location successfully obtained
+function showPosition(position) {
+
+  // Changes the content of the 'p' element with id 'demo' (as saved in variable 'x' above) to the lat and long.
+  x.innerHTML = "Latitude: " + position.coords.latitude + 
+  "<br>Longitude: " + position.coords.longitude;
+  
+  
+
+  // Construct the url with our parameters. You will need to create a free account over at https://openweathermap.org/api/one-call-api and get an API key.
+  let url = "https://api.openweathermap.org/data/2.5/onecall?lat="
+    + position.coords.latitude
+    + "&lon="
+    + position.coords.longitude
+    + "&appid="
+    + "use your own key :P";
+
+  // Fetch the data from the url. A 'fetch' calls an external API with optional parameters and returns a certain value (or not). These calls are the basis of web trafic ('GET', 'POST', 'PUT', 'DELETE'). Luckily JavaScript is pretty chill and there is no need to specify the request type (as long as there are no conflicting API endpoints, but that's a topic for another day).
+  fetch(url)
+  .then((response) => {
+    // This will get the response body and return it as a JSON body, making it easy to work with.
+    return response.json();
+  })
+  .then((myJson) => {
+    // You can change the name 'myJson' to whatever you want, it doesn't matter. This variable will contain the JSON body the above method returned.
+    
+    // Print the entire JSON response to the console. You can see the content in the console on your webpage somewhere in the 'inspect element' menu.
+    console.log(myJson);
+
+    // Get the correct part of the JSON body and print it to the console
+    console.log(myJson.current.weather[0].description);
+    
+    // And change the content of the 'p' element we saved in the 'x' variable earlier to the data we need
+    x.innerHTML = myJson.current.weather[0].description;
+  });
+}
+
+// If an error occured
+function showError(error) {
+  // Switch based on multiple error types, you can ignore this for now as it is not all that important :D
+  switch(error.code) {
+    case error.PERMISSION_DENIED:
+      x.innerHTML = "User denied the request for Geolocation."
+      break;
+    case error.POSITION_UNAVAILABLE:
+      x.innerHTML = "Location information is unavailable."
+      break;
+    case error.TIMEOUT:
+      x.innerHTML = "The request to get user location timed out."
+      break;
+    case error.UNKNOWN_ERROR:
+      x.innerHTML = "An unknown error occurred."
+      break;
+  }
+}
+</script>
 
 </body>
 </html>
-
-
